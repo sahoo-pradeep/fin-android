@@ -1,26 +1,28 @@
 package sahoo.projects.fin
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_card_list.*
+import kotlinx.android.synthetic.main.fragment_card_list.*
 import sahoo.projects.fin.model.CardDetail
 
-class CardListActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_card_list)
+class CardListFragment : Fragment(R.layout.fragment_card_list) {
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         // get cardListItems from db
         val cardListItems = mutableListOf(
             CardDetail(),
-            CardDetail()
+            CardDetail(bank = "ICICI", cardHolderName = "Pradeep Kumar Sahoo")
         )
 
         val adapter = CardListAdapter(cardListItems)
         rvCardList.adapter = adapter
-        rvCardList.layoutManager = LinearLayoutManager(this)
+        rvCardList.layoutManager = LinearLayoutManager(view.context)
+
+
 
         // On adding a new cardListItem
         //adapter.notifyDataSetChanged() //Update all views - dont use it
@@ -28,7 +30,7 @@ class CardListActivity : AppCompatActivity() {
 
         fabAdd.setOnClickListener {
 
-            Intent(this, CardDetailActivity::class.java).also {
+            Intent(view.context, CardDetailActivity::class.java).also {
                 it.putExtra("EXTRA_CARD_DETAIL", CardDetail())
                 startActivity(it)
             }

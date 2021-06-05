@@ -8,7 +8,7 @@ import kotlinx.android.synthetic.main.activity_card_list_item.view.*
 import sahoo.projects.fin.model.CardDetail
 
 class CardListAdapter(
-    var cardDetails: List<CardDetail>
+    private var cardDetails: List<CardDetail>
 ) : RecyclerView.Adapter<CardListAdapter.CardListViewHolder>() {
 
     inner class CardListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -22,9 +22,11 @@ class CardListAdapter(
     override fun onBindViewHolder(holder: CardListViewHolder, position: Int) {
         val cardDetail = cardDetails[position]
         holder.itemView.apply {
-            tvCardListItem.text = "${cardDetail.bank} ${cardDetail.cardType.verbose}: ${cardDetail.cardHolderName}"
+            btnCardListItem.text = "${cardDetail.bank} ${cardDetail.cardType.verbose}: ${cardDetail.cardHolderName.split(" ").firstOrNull()}"
         }
     }
 
     override fun getItemCount(): Int = cardDetails.size
+
+
 }
