@@ -1,5 +1,8 @@
 package sahoo.projects.fin
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
@@ -29,6 +32,13 @@ class CardDetailActivity : AppCompatActivity() {
         val cardTypesAdapter =
             ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, cardTypes)
         actvCardType.setAdapter(cardTypesAdapter)
+
+        tilCardNumber.setEndIconOnClickListener {
+            val clipboard =  getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("text", etCardNumber.text)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show()
+        }
 
         btnSave.setOnClickListener {
             cardDetail = updateCardDetail(cardDetail)
