@@ -1,18 +1,17 @@
 package sahoo.projects.fin
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+    private val cardListFragment = CardListFragment()
+    private val bankFragment = BankFragment()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val cardListFragment = CardListFragment()
-        val bankFragment = BankFragment()
-
         setCurrentFragment(cardListFragment)
 
         bottomNavigationView.setOnNavigationItemSelectedListener {
