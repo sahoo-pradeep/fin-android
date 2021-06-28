@@ -13,7 +13,7 @@ class SecurityUtil {
         private lateinit var biometricPrompt: BiometricPrompt
         private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
-        fun authenticate(context: Context, activity: FragmentActivity, authAndDo: () -> Unit) {
+        fun authenticate(context: Context, activity: FragmentActivity, onSuccess: () -> Unit) {
             promptInfo = BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Biometric login for Fin!")
                 .setSubtitle("Log in using your biometric credential")
@@ -32,10 +32,7 @@ class SecurityUtil {
                     override fun onAuthenticationSucceeded(
                         result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
-                        Toast.makeText(activity,
-                            "Authentication succeeded!", Toast.LENGTH_SHORT)
-                            .show()
-                        authAndDo()
+                        onSuccess()
                     }
 
                     override fun onAuthenticationFailed() {

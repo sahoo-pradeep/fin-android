@@ -16,18 +16,36 @@ import kotlinx.coroutines.runBlocking
 import sahoo.projects.fin.dao.CardDetailDao
 import sahoo.projects.fin.dao.FinDatabase
 import sahoo.projects.fin.model.CardDetail
+import sahoo.projects.fin.util.SecurityUtil
 
 class CardDetailActivity : AppCompatActivity() {
     lateinit var dao: CardDetailDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val isNewCard = intent.getSerializableExtra("EXTRA_IS_NEW_CARD") as Boolean
+        if (isNewCard) {
+            showCardDetails()
+            btnDelete.visibility = View.GONE
+        } else {
+            authAndShowCardDetails()
+        }
+    }
+
+    private fun authAndShowCardDetails() {
+        //Biometrics with white background
+        setContentView(R.layout.fragment_white_bg)
+        SecurityUtil.authenticate(this, this) { showCardDetails() }
+    }
+
+    private fun showCardDetails() {
         setContentView(R.layout.activity_card_detail)
         dao = FinDatabase.getInstance(this).cardDetailDao
 
-        var cardDetail = intent.getSerializableExtra("EXTRA_CARD_DETAIL") as CardDetail
-        val isNewCard = intent.getSerializableExtra("EXTRA_IS_NEW_CARD") as Boolean
-        populateFields(cardDetail)
+        val cardDetail = intent.getSerializableExtra("EXTRA_CARD_DETAIL") as CardDetail
+
+        populateView(cardDetail)
 
         val cardTypes = CardDetail.CardType.verboseValues()
         val cardTypesAdapter =
@@ -38,38 +56,57 @@ class CardDetailActivity : AppCompatActivity() {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("text", etCardNumber.text)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Copied $clip", Toast.LENGTH_SHORT).show()
         }
 
-        if (isNewCard) {
-            btnDelete.visibility = View.GONE
-        }
-
-        btnSave.setOnClickListener {
-            cardDetail = updateCardDetail(cardDetail)
-
-            runBlocking {
-                dao.insert(cardDetail)
-            }
-
-            Toast.makeText(
-                applicationContext, "${cardDetail.getDisplayName()} Saved",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
-        }
+        btnSave.setOnClickListener { cardDetail.saveToDB() }
 
         btnDelete.setOnClickListener {
             MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Card")
                 .setMessage("Are you sure you want to delete ${cardDetail.bank} ${cardDetail.cardType.verbose}")
-                .setPositiveButton("Delete") { _, _ -> deleteCard(cardDetail) }
+                .setPositiveButton("Delete") { _, _ -> cardDetail.deleteFromDB() }
                 .setNegativeButton("Cancel", null)
                 .show()
         }
     }
 
-    private fun deleteCard(cardDetail: CardDetail) {
+    private fun populateView(cardDetail: CardDetail) {
+        etBank.setText(cardDetail.bank)
+        actvCardType.setText(cardDetail.cardType.verbose)
+        etCardNumber.setText(cardDetail.cardNumber)
+        etCvv.setText(cardDetail.cvv)
+        etCardHolderName.setText(cardDetail.cardHolderName)
+        etExpiryMonth.setText(cardDetail.expiryMonth)
+        etExpiryYear.setText(cardDetail.expiryYear)
+        //todo: add grid
+    }
+
+    private fun CardDetail.updated() = this.copy(
+        bank = etBank.text.toString(),
+        cardType = CardDetail.CardType.getCardType(actvCardType.text.toString()),
+        cardNumber = etCardNumber.text.toString(),
+        cvv = etCvv.text.toString(),
+        cardHolderName = etCardHolderName.text.toString(),
+        expiryMonth = etExpiryMonth.text.toString(),
+        expiryYear = etExpiryYear.text.toString()
+    )
+
+    private fun CardDetail.saveToDB() {
+        val cardDetail = this.updated()
+        runBlocking {
+            dao.insert(cardDetail)
+        }
+
+        Toast.makeText(
+            applicationContext, "${cardDetail.getDisplayName()} Saved",
+            Toast.LENGTH_SHORT
+        ).show()
+        finish()
+    }
+
+    private fun CardDetail.deleteFromDB() {
+        val cardDetail = this
         lifecycleScope.launch {
             dao.delete(cardDetail)
         }
@@ -80,25 +117,4 @@ class CardDetailActivity : AppCompatActivity() {
         ).show()
         finish()
     }
-
-    private fun populateFields(cardDetail: CardDetail) {
-        etBank.setText(cardDetail.bank)
-        actvCardType.setText(cardDetail.cardType.verbose)
-        etCardNumber.setText(cardDetail.cardNumber)
-        etCvv.setText(cardDetail.cvv)
-        etCardHolderName.setText(cardDetail.cardHolderName)
-        etExpiryMonth.setText(cardDetail.expiryMonth)
-        etExpiryYear.setText(cardDetail.expiryYear)
-        //add grid
-    }
-
-    private fun updateCardDetail(cardDetail: CardDetail): CardDetail = cardDetail.copy(
-        bank = etBank.text.toString(),
-        cardType = CardDetail.CardType.getCardType(actvCardType.text.toString()),
-        cardNumber = etCardNumber.text.toString(),
-        cvv = etCvv.text.toString(),
-        cardHolderName = etCardHolderName.text.toString(),
-        expiryMonth = etExpiryMonth.text.toString(),
-        expiryYear = etExpiryYear.text.toString()
-    )
 }
