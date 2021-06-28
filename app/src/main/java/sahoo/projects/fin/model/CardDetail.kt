@@ -13,7 +13,7 @@ data class CardDetail(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
     val bank: String? = null,
-    val cardType: CardType? = CardType.CREDIT,
+    val cardType: CardType = CardType.CREDIT,
     val cardNumber: String? = null,
     val cvv: String? = null,
     val cardHolderName: String? = null,
@@ -28,8 +28,8 @@ data class CardDetail(
         CREDIT("Credit Card");
 
         companion object {
-            fun getCardType(cardTypeVerbose: String): CardType? {
-                return values().firstOrNull { it.verbose == cardTypeVerbose }
+            fun getCardType(cardTypeVerbose: String): CardType {
+                return values().first { it.verbose == cardTypeVerbose }
             }
 
             fun verboseValues(): Array<String> {
@@ -42,7 +42,7 @@ data class CardDetail(
         val itemName = StringJoiner(" ")
         itemName.add(cardHolderName?.split(" ")?.firstOrNull())
         itemName.add(":")
-        itemName.add(cardType?.verbose)
+        itemName.add(cardType.verbose)
         itemName.add(":")
         itemName.add(cardNumber?.takeLast(4))
 

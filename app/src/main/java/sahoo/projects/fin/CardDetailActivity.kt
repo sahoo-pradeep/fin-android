@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_card_detail.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -34,10 +35,14 @@ class CardDetailActivity : AppCompatActivity() {
         actvCardType.setAdapter(cardTypesAdapter)
 
         tilCardNumber.setEndIconOnClickListener {
-            val clipboard =  getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("text", etCardNumber.text)
             clipboard.setPrimaryClip(clip)
             Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show()
+        }
+
+        if (isNewCard) {
+            btnDelete.visibility = View.GONE
         }
 
         btnSave.setOnClickListener {
@@ -54,26 +59,31 @@ class CardDetailActivity : AppCompatActivity() {
             finish()
         }
 
-        if (isNewCard) {
-            btnDelete.visibility = View.GONE
-        }
-
         btnDelete.setOnClickListener {
-            lifecycleScope.launch {
-                dao.delete(cardDetail)
-            }
-            Toast.makeText(
-                applicationContext,
-                "${cardDetail.getDisplayName()} Deleted",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Delete Card")
+                .setMessage("Are you sure you want to delete ${cardDetail.bank} ${cardDetail.cardType.verbose}")
+                .setPositiveButton("Delete") { _, _ -> deleteCard(cardDetail) }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
+    }
+
+    private fun deleteCard(cardDetail: CardDetail) {
+        lifecycleScope.launch {
+            dao.delete(cardDetail)
+        }
+        Toast.makeText(
+            applicationContext,
+            "${cardDetail.getDisplayName()} Deleted",
+            Toast.LENGTH_SHORT
+        ).show()
+        finish()
     }
 
     private fun populateFields(cardDetail: CardDetail) {
         etBank.setText(cardDetail.bank)
-        actvCardType.setText(cardDetail.cardType?.verbose)
+        actvCardType.setText(cardDetail.cardType.verbose)
         etCardNumber.setText(cardDetail.cardNumber)
         etCvv.setText(cardDetail.cvv)
         etCardHolderName.setText(cardDetail.cardHolderName)

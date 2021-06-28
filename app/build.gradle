@@ -62,4 +62,7 @@ dependencies {
     // Coroutine Lifecycle Scopes
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
+
+    // Biometrics
+    implementation("androidx.biometric:biometric:1.2.0-alpha03")
 }
