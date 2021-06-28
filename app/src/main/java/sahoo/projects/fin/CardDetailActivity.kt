@@ -20,6 +20,7 @@ import sahoo.projects.fin.util.SecurityUtil
 
 class CardDetailActivity : AppCompatActivity() {
     lateinit var dao: CardDetailDao
+    private var paused = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,19 @@ class CardDetailActivity : AppCompatActivity() {
         } else {
             authAndShowCardDetails()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (paused) {
+            authAndShowCardDetails()
+            paused = false
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        paused = true
     }
 
     private fun authAndShowCardDetails() {
