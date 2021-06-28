@@ -23,9 +23,9 @@ data class CardDetail(
     val grid: CardGrid? = null
 
 ) : Serializable {
-    enum class CardType(val verbose: String) {
-        DEBIT("Debit Card"),
-        CREDIT("Credit Card");
+    enum class CardType(val verbose: String, val short: String) {
+        DEBIT("Debit Card", "DC"),
+        CREDIT("Credit Card", "CC");
 
         companion object {
             fun getCardType(cardTypeVerbose: String): CardType {
@@ -38,14 +38,13 @@ data class CardDetail(
         }
     }
 
-    fun getDisplayName(): String {
-        val itemName = StringJoiner(" ")
-        itemName.add(cardHolderName?.split(" ")?.firstOrNull())
-        itemName.add(":")
-        itemName.add(cardType.verbose)
-        itemName.add(":")
-        itemName.add(cardNumber?.takeLast(4))
-
-        return itemName.toString()
-    }
+    fun getDisplayName(): String =
+        StringJoiner(" ")
+            .add(cardHolderName?.split(" ")?.firstOrNull())
+            .add("::")
+            .add(bank)
+            .add("(${cardType.short})")
+            .add("::")
+            .add(cardNumber?.takeLast(4))
+            .toString()
 }

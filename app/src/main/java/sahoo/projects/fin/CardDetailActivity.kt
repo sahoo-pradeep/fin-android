@@ -56,7 +56,7 @@ class CardDetailActivity : AppCompatActivity() {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("text", etCardNumber.text)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "Copied $clip", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Copied ${etCardNumber.text}", Toast.LENGTH_SHORT).show()
         }
 
         btnSave.setOnClickListener { cardDetail.saveToDB() }
