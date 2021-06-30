@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager.LayoutParams.FLAG_SECURE
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +25,7 @@ class CardDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setFlags(FLAG_SECURE, FLAG_SECURE)
 
         val isNewCard = intent.getSerializableExtra("EXTRA_IS_NEW_CARD") as Boolean
         if (isNewCard) {
@@ -49,7 +51,7 @@ class CardDetailActivity : AppCompatActivity() {
 
     private fun authAndShowCardDetails() {
         //Biometrics with white background
-        setContentView(R.layout.fragment_white_bg)
+        setContentView(R.layout.fragment_blank_bg)
         SecurityUtil.authenticate(this, this) { showCardDetails() }
     }
 
